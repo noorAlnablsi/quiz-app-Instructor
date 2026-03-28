@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PageHeader from '../components/ui/PageHeader'
+import { useQuestionBanks } from '../context/QuestionBanksContext'
 import { marketplaceBanks as initialMarketplaceBanks } from '../mock-data/marketplaceData'
-import { questionBanks } from '../mock-data/questionBanksData'
 
 function MarketplacePage() {
+  const { banks } = useQuestionBanks()
   const [marketBanks, setMarketBanks] = useState(initialMarketplaceBanks)
-  const [selectedBankId, setSelectedBankId] = useState(questionBanks[0]?.id ?? '')
+  const [selectedBankId, setSelectedBankId] = useState('')
+
+  useEffect(() => {
+    if (banks.length === 0) return
+    setSelectedBankId((prev) => (prev && banks.some((b) => b.id === prev) ? prev : banks[0].id))
+  }, [banks])
   const [price, setPrice] = useState(49)
 
   const publishBank = () => {
-    const bank = questionBanks.find((item) => item.id === selectedBankId)
+    const bank = banks.find((item) => item.id === selectedBankId)
     if (!bank) return
 
     const newItem = {
@@ -47,7 +53,7 @@ function MarketplacePage() {
             onChange={(event) => setSelectedBankId(event.target.value)}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
           >
-            {questionBanks.map((bank) => (
+            {banks.map((bank) => (
               <option key={bank.id} value={bank.id}>
                 {bank.name}
               </option>

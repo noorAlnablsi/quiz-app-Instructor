@@ -1,6 +1,15 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { StudentExperienceProvider } from './context/StudentExperienceContext'
 import AppLayout from './components/layout/AppLayout'
 import AuthLayout from './components/layout/AuthLayout'
+import StudentLayout from './student/components/StudentLayout'
+import StudentAnalyticsPage from './student/pages/StudentAnalyticsPage'
+import StudentDashboardPage from './student/pages/StudentDashboardPage'
+import StudentExamPage from './student/pages/StudentExamPage'
+import StudentHistoryPage from './student/pages/StudentHistoryPage'
+import StudentJoinExamPage from './student/pages/StudentJoinExamPage'
+import StudentQuestionBanksPage from './student/pages/StudentQuestionBanksPage'
+import StudentResultPage from './student/pages/StudentResultPage'
 import DashboardPage from './pages/DashboardPage'
 import CreateExamPage from './pages/CreateExamPage'
 import ExamsPage from './pages/ExamsPage'
@@ -22,6 +31,23 @@ function App() {
         <Route path="register" element={<RegisterPage />} />
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
         <Route path="role/:role" element={<RolePendingPage />} />
+      </Route>
+      <Route
+        path="student"
+        element={
+          <StudentExperienceProvider>
+            <StudentLayout />
+          </StudentExperienceProvider>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<StudentDashboardPage />} />
+        <Route path="join" element={<StudentJoinExamPage />} />
+        <Route path="exam/:sessionId" element={<StudentExamPage />} />
+        <Route path="result/:sessionId" element={<StudentResultPage />} />
+        <Route path="history" element={<StudentHistoryPage />} />
+        <Route path="analytics" element={<StudentAnalyticsPage />} />
+        <Route path="banks" element={<StudentQuestionBanksPage />} />
       </Route>
       <Route path="/" element={<AppLayout />}>
         <Route path="dashboard" element={<DashboardPage />} />

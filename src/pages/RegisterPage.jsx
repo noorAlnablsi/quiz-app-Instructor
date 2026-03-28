@@ -30,6 +30,17 @@ function RegisterPage() {
 
     setError('')
 
+    try {
+      localStorage.setItem('quiz-app-demo-role', role)
+    } catch {
+      /* ignore */
+    }
+
+    if (role === 'student') {
+      navigate('/student/dashboard')
+      return
+    }
+
     if (role === 'instructor') {
       navigate('/dashboard')
       return

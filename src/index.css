@@ -7,3 +7,18 @@ body {
   color: #0f172a;
   font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* واجهة الطالب — تباين عالٍ */
+.student-portal-high-contrast {
+  --sp-bg: #000000;
+  --sp-surface: #0a0a0a;
+  --sp-text: #ffffff;
+  --sp-muted: #e5e5e5;
+  --sp-border: #fbbf24;
+  --sp-accent: #fbbf24;
+  --sp-accent-text: #000000;
+}
+
+.student-portal-high-contrast a {
+  text-decoration: underline;
+}

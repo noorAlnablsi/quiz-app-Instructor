@@ -1,8 +1,16 @@
+import { useState } from 'react'
 import PageHeader from '../components/ui/PageHeader'
 import StatCard from '../components/ui/StatCard'
 import { dashboardStats, recentActivities } from '../mock-data/dashboardData'
 
 function DashboardPage() {
+  const defaultVisibleActivities = 3
+  const [showAllActivities, setShowAllActivities] = useState(false)
+  const visibleActivities = showAllActivities
+    ? recentActivities
+    : recentActivities.slice(0, defaultVisibleActivities)
+  const canExpandActivities = recentActivities.length > defaultVisibleActivities
+
   return (
     <section>
       <PageHeader
@@ -19,9 +27,15 @@ function DashboardPage() {
       <div className="mt-6 rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h3 className="text-lg font-semibold text-slate-900">آخر النشاطات</h3>
-          <button className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
-            عرض الكل
-          </button>
+          {canExpandActivities && (
+            <button
+              type="button"
+              onClick={() => setShowAllActivities((prev) => !prev)}
+              className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+            >
+              {showAllActivities ? 'عرض أقل' : 'عرض الكل'}
+            </button>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -36,7 +50,7 @@ function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {recentActivities.map((item) => (
+              {visibleActivities.map((item) => (
                 <tr key={item.id} className="border-t border-slate-100">
                   <td className="px-5 py-4 text-sm font-medium text-slate-800">{item.action}</td>
                   <td className="px-5 py-4 text-sm text-slate-600">{item.target}</td>

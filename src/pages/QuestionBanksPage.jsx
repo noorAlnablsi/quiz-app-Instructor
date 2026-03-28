@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/ui/PageHeader'
-import { accessTypes, questionBanks as initialQuestionBanks } from '../mock-data/questionBanksData'
+import { useQuestionBanks } from '../context/QuestionBanksContext'
+import { accessTypes } from '../mock-data/questionBanksData'
 
 function QuestionBanksPage() {
-  const [banks, setBanks] = useState(initialQuestionBanks)
+  const { banks, removeBank } = useQuestionBanks()
   const [bankToDelete, setBankToDelete] = useState(null)
 
   const accessTypeMap = useMemo(
@@ -18,7 +19,7 @@ function QuestionBanksPage() {
 
   const confirmDelete = () => {
     if (!bankToDelete) return
-    setBanks((prev) => prev.filter((bank) => bank.id !== bankToDelete.id))
+    removeBank(bankToDelete.id)
     setBankToDelete(null)
   }
 
@@ -26,7 +27,7 @@ function QuestionBanksPage() {
     <section>
       <PageHeader
         title="بنوك الأسئلة"
-        description="إدارة بنوك الأسئلة مع إنشاء وتعديل وحذف باستخدام بيانات وهمية."
+        description="إدارة بنوك الأسئلة مع إنشاء وتعديل وحذف؛ تُحفظ القائمة في المتصفح."
         action={
           <Link
             to="/question-banks/new"
@@ -42,6 +43,7 @@ function QuestionBanksPage() {
           <thead className="bg-slate-50">
             <tr>
               <th className="px-5 py-3 text-xs font-semibold tracking-wide text-slate-500">اسم البنك</th>
+              <th className="px-5 py-3 text-xs font-semibold tracking-wide text-slate-500">المادة</th>
               <th className="px-5 py-3 text-xs font-semibold tracking-wide text-slate-500">عدد الأسئلة</th>
               <th className="px-5 py-3 text-xs font-semibold tracking-wide text-slate-500">نوع الوصول</th>
               <th className="px-5 py-3 text-xs font-semibold tracking-wide text-slate-500">الإجراءات</th>
@@ -53,7 +55,14 @@ function QuestionBanksPage() {
                 <td className="px-5 py-4">
                   <p className="text-sm font-semibold text-slate-900">{bank.name}</p>
                   <p className="mt-1 text-xs text-slate-500">{bank.description}</p>
+                  {bank.topics?.length ? (
+                    <p className="mt-1.5 text-xs text-slate-400">
+                      التوبيكات: {bank.topics.slice(0, 4).join('، ')}
+                      {bank.topics.length > 4 ? '…' : ''}
+                    </p>
+                  ) : null}
                 </td>
+                <td className="px-5 py-4 text-sm font-medium text-slate-800">{bank.subject ?? '—'}</td>
                 <td className="px-5 py-4 text-sm text-slate-700">{bank.questionsCount}</td>
                 <td className="px-5 py-4">
                   <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">

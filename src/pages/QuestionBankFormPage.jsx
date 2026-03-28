@@ -1,25 +1,41 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import PageHeader from '../components/ui/PageHeader'
-import { accessTypes, questionBanks } from '../mock-data/questionBanksData'
+import { useQuestionBanks } from '../context/QuestionBanksContext'
+import { accessTypes } from '../mock-data/questionBanksData'
 
 function QuestionBankFormPage({ mode }) {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { banks, addBank, updateBank } = useQuestionBanks()
 
-  const selectedBank = useMemo(
-    () => questionBanks.find((bank) => bank.id === id) ?? questionBanks[0],
-    [id],
+  const bankFromContext = useMemo(
+    () => (mode === 'edit' && id ? banks.find((bank) => bank.id === id) : null),
+    [mode, id, banks],
   )
-  const seed = mode === 'edit' ? selectedBank : null
 
-  const [name, setName] = useState(seed?.name ?? '')
-  const [description, setDescription] = useState(seed?.description ?? '')
-  const [access, setAccess] = useState(seed?.access ?? 'public')
+  const [subject, setSubject] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [access, setAccess] = useState('public')
   const [topicInput, setTopicInput] = useState('')
   const [questionInput, setQuestionInput] = useState('')
-  const [topics, setTopics] = useState(seed?.topics ?? [])
-  const [questions, setQuestions] = useState(seed?.questions ?? [])
+  const [topics, setTopics] = useState([])
+  const [questions, setQuestions] = useState([])
+
+  useEffect(() => {
+    if (mode !== 'edit' || !id) return
+    if (!bankFromContext) {
+      navigate('/question-banks', { replace: true })
+      return
+    }
+    setSubject(bankFromContext.subject ?? '')
+    setName(bankFromContext.name)
+    setDescription(bankFromContext.description)
+    setAccess(bankFromContext.access)
+    setTopics(bankFromContext.topics ?? [])
+    setQuestions(bankFromContext.questions ?? [])
+  }, [mode, id, bankFromContext, navigate])
 
   const title = mode === 'edit' ? 'تعديل بنك الأسئلة' : 'إنشاء بنك أسئلة'
 
@@ -35,24 +51,66 @@ function QuestionBankFormPage({ mode }) {
     setQuestionInput('')
   }
 
+  const handleSave = () => {
+    const trimmedName = name.trim()
+    if (!trimmedName) return
+
+    const payload = {
+      subject: subject.trim() || '—',
+      name: trimmedName,
+      description: description.trim() || '—',
+      access,
+      topics,
+      questions,
+      questionsCount: questions.length,
+    }
+
+    if (mode === 'create') {
+      addBank({
+        id: `bank-${Date.now()}`,
+        ...payload,
+      })
+    } else if (id) {
+      updateBank(id, payload)
+    }
+
+    navigate('/question-banks')
+  }
+
   return (
     <section>
       <PageHeader
         title={title}
-        description="نموذج واجهة فقط لإدارة بيانات بنك الأسئلة دون ربط Backend."
+        description="لكل بنك مادة واحدة، وعدة توبيكات ضمنها؛ يُحفظ محليًا ويظهر في قائمة البنوك."
       />
 
       <form
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={(event) => {
+          event.preventDefault()
+          handleSave()
+        }}
         className="space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
       >
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
+          <label className="block">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">المادة</span>
+            <input
+              value={subject}
+              onChange={(event) => setSubject(event.target.value)}
+              placeholder="مثال: الرياضيات"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-200 transition focus:border-indigo-500 focus:ring"
+            />
+            <p className="mt-1.5 text-xs text-slate-500">
+              مادة واحدة لكل بنك؛ التوبيكات أدناه تابعة لها (مثل احتمالات، تكامل، جبر…).
+            </p>
+          </label>
+
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700">اسم البنك</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="مثال: بنك الرياضيات"
+              placeholder="مثال: بنك مراجعة الوحدة الثانية"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-200 transition focus:border-indigo-500 focus:ring"
             />
           </label>
@@ -86,12 +144,13 @@ function QuestionBankFormPage({ mode }) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-lg border border-slate-200 p-4">
-            <h3 className="mb-3 text-sm font-bold text-slate-900">المواضيع (Topics)</h3>
+            <h3 className="mb-1 text-sm font-bold text-slate-900">توبيكات المادة</h3>
+            <p className="mb-3 text-xs text-slate-500">وحدات فرعية داخل المادة نفسها (مثال للرياضيات: احتمالات، تكامل…).</p>
             <div className="flex gap-2">
               <input
                 value={topicInput}
                 onChange={(event) => setTopicInput(event.target.value)}
-                placeholder="أضف موضوعًا جديدًا"
+                placeholder="مثال: احتمالات"
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
               />
               <button
@@ -146,8 +205,7 @@ function QuestionBankFormPage({ mode }) {
             رجوع
           </Link>
           <button
-            type="button"
-            onClick={() => navigate('/question-banks')}
+            type="submit"
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
           >
             {mode === 'edit' ? 'حفظ التعديلات' : 'إنشاء البنك'}

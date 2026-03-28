@@ -1,18 +1,49 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '../components/ui/PageHeader'
+import { useExams } from '../context/ExamsContext'
+import { useQuestionBanks } from '../context/QuestionBanksContext'
 import { creationMethods } from '../mock-data/examsData'
-import { questionBanks } from '../mock-data/questionBanksData'
 
 function CreateExamPage() {
   const navigate = useNavigate()
+  const { addExam } = useExams()
+  const { banks } = useQuestionBanks()
   const [method, setMethod] = useState('manual')
   const [durationMode, setDurationMode] = useState('total')
   const [durationValue, setDurationValue] = useState(60)
   const [allowNavigation, setAllowNavigation] = useState(true)
   const [showResults, setShowResults] = useState(true)
-  const [selectedBank, setSelectedBank] = useState(questionBanks[0]?.id ?? '')
+  const [selectedBank, setSelectedBank] = useState('')
+
+  useEffect(() => {
+    if (banks.length === 0) return
+    setSelectedBank((prev) => (prev && banks.some((b) => b.id === prev) ? prev : banks[0].id))
+  }, [banks])
   const [title, setTitle] = useState('')
+
+  const handleCreate = () => {
+    const name = title.trim()
+    if (!name) return
+    if (method === 'bank' && banks.length === 0) return
+
+    const bank = method === 'bank' ? banks.find((b) => b.id === selectedBank) : null
+    const questionsCount = bank ? bank.questionsCount : 0
+
+    addExam({
+      id: `exam-${Date.now()}`,
+      name,
+      questionsCount,
+      durationMode,
+      durationValue,
+      creationMethod: method,
+      bankId: bank?.id ?? null,
+      allowNavigation,
+      showResults,
+    })
+
+    navigate('/exams')
+  }
 
   return (
     <section>
@@ -22,7 +53,10 @@ function CreateExamPage() {
       />
 
       <form
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={(event) => {
+          event.preventDefault()
+          handleCreate()
+        }}
         className="space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
       >
         <label className="block">
@@ -63,7 +97,7 @@ function CreateExamPage() {
               onChange={(event) => setSelectedBank(event.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-200 transition focus:border-indigo-500 focus:ring"
             >
-              {questionBanks.map((bank) => (
+              {banks.map((bank) => (
                 <option key={bank.id} value={bank.id}>
                   {bank.name}
                 </option>
@@ -136,8 +170,7 @@ function CreateExamPage() {
             رجوع
           </Link>
           <button
-            type="button"
-            onClick={() => navigate('/exams')}
+            type="submit"
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
           >
             إنشاء الاختبار

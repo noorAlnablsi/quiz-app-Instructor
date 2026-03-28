@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/ui/PageHeader'
-import { exams } from '../mock-data/examsData'
+import { useExams } from '../context/ExamsContext'
 
 function ExamsPage() {
+  const { exams } = useExams()
+
   return (
     <section>
       <PageHeader
         title="الاختبارات"
-        description="عرض الاختبارات الحالية مع عدد الأسئلة وإعداد الوقت."
+        description="عرض الاختبارات الحالية مع عدد الأسئلة وإعداد الوقت؛ تُحفظ القائمة في المتصفح."
         action={
           <Link
             to="/exams/new"
@@ -31,7 +33,9 @@ function ExamsPage() {
             {exams.map((exam) => (
               <tr key={exam.id} className="border-t border-slate-100">
                 <td className="px-5 py-4 text-sm font-semibold text-slate-900">{exam.name}</td>
-                <td className="px-5 py-4 text-sm text-slate-700">{exam.questionsCount}</td>
+                <td className="px-5 py-4 text-sm text-slate-700">
+                  {exam.creationMethod === 'manual' && exam.questionsCount === 0 ? '—' : exam.questionsCount}
+                </td>
                 <td className="px-5 py-4 text-sm text-slate-700">
                   {exam.durationMode === 'total'
                     ? `${exam.durationValue} دقيقة (إجمالي)`

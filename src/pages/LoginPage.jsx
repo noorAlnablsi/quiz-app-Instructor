@@ -14,7 +14,12 @@ function LoginPage() {
     }
 
     setError('')
-    navigate('/dashboard')
+    try {
+      const lastRole = localStorage.getItem('quiz-app-demo-role')
+      navigate(lastRole === 'student' ? '/student/dashboard' : '/dashboard')
+    } catch {
+      navigate('/dashboard')
+    }
   }
 
   return (
