@@ -16,7 +16,10 @@ function LoginPage() {
     setError('')
     try {
       const lastRole = localStorage.getItem('quiz-app-demo-role')
-      navigate(lastRole === 'student' ? '/student/dashboard' : '/dashboard')
+      if (lastRole === 'student') navigate('/student/dashboard')
+      else if (lastRole === 'organization') navigate('/org/dashboard')
+      else if (lastRole === 'admin') navigate('/admin/dashboard')
+      else navigate('/dashboard')
     } catch {
       navigate('/dashboard')
     }

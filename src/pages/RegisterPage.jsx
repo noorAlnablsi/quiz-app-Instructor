@@ -46,6 +46,16 @@ function RegisterPage() {
       return
     }
 
+    if (role === 'organization') {
+      navigate('/org/dashboard')
+      return
+    }
+
+    if (role === 'admin') {
+      navigate('/admin/dashboard')
+      return
+    }
+
     navigate(`/role/${role}`)
   }
 

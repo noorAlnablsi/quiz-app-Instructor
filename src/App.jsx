@@ -21,6 +21,20 @@ import QuestionBankFormPage from './pages/QuestionBankFormPage'
 import QuestionBanksPage from './pages/QuestionBanksPage'
 import RegisterPage from './pages/RegisterPage'
 import RolePendingPage from './pages/RolePendingPage'
+import OrgLayout from './organization/components/OrgLayout'
+import OrgAccessPage from './organization/pages/OrgAccessPage'
+import OrgDashboardPage from './organization/pages/OrgDashboardPage'
+import OrgExamsPage from './organization/pages/OrgExamsPage'
+import OrgNotificationsPage from './organization/pages/OrgNotificationsPage'
+import OrgReportsPage from './organization/pages/OrgReportsPage'
+import OrgStudentDetailPage from './organization/pages/OrgStudentDetailPage'
+import OrgStudentsPage from './organization/pages/OrgStudentsPage'
+import AdminLayout from './admin/layout/AdminLayout'
+import AdminDashboardPage from './admin/pages/AdminDashboardPage'
+import AdminMarketplacePage from './admin/pages/AdminMarketplacePage'
+import AdminMonitoringPage from './admin/pages/AdminMonitoringPage'
+import AdminStatisticsPage from './admin/pages/AdminStatisticsPage'
+import AdminUsersPage from './admin/pages/AdminUsersPage'
 
 function App() {
   return (
@@ -48,6 +62,24 @@ function App() {
         <Route path="history" element={<StudentHistoryPage />} />
         <Route path="analytics" element={<StudentAnalyticsPage />} />
         <Route path="banks" element={<StudentQuestionBanksPage />} />
+      </Route>
+      <Route path="org" element={<OrgLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<OrgDashboardPage />} />
+        <Route path="students" element={<OrgStudentsPage />} />
+        <Route path="students/:id" element={<OrgStudentDetailPage />} />
+        <Route path="exams" element={<OrgExamsPage />} />
+        <Route path="reports" element={<OrgReportsPage />} />
+        <Route path="access" element={<OrgAccessPage />} />
+        <Route path="notifications" element={<OrgNotificationsPage />} />
+      </Route>
+      <Route path="admin" element={<AdminLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="users" element={<AdminUsersPage />} />
+        <Route path="monitoring" element={<AdminMonitoringPage />} />
+        <Route path="marketplace" element={<AdminMarketplacePage />} />
+        <Route path="statistics" element={<AdminStatisticsPage />} />
       </Route>
       <Route path="/" element={<AppLayout />}>
         <Route path="dashboard" element={<DashboardPage />} />
